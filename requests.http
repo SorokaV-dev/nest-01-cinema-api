@@ -1,0 +1,335 @@
+@baseUrl = http://localhost:3000
+@missingId = 00000000-0000-4000-8000-000000000001
+
+### Створити фільм
+# @name createFilm
+POST {{baseUrl}}/films
+Content-Type: application/json
+
+{
+  "title": "Interstellar",
+  "durationMinutes": 169,
+  "releaseYear": 2014
+}
+
+> {% client.global.set("filmId", response.body.id); %}
+
+### Список фільмів
+GET {{baseUrl}}/films
+
+### Фільм за ID
+GET {{baseUrl}}/films/{{filmId}}
+
+### ID фільму не є UUID — 400
+GET {{baseUrl}}/films/not-a-uuid
+
+### Частково оновити фільм
+PATCH {{baseUrl}}/films/{{filmId}}
+Content-Type: application/json
+
+{
+  "title": "Interstellar: restored"
+}
+
+### Створити фільм без обов'язкових полів — 400
+POST {{baseUrl}}/films
+Content-Type: application/json
+
+{}
+
+### Створити фільм із неправильним типом поля — 400
+POST {{baseUrl}}/films
+Content-Type: application/json
+
+{
+  "title": "Invalid film",
+  "durationMinutes": "long",
+  "releaseYear": 2020
+}
+
+### Оновити фільм неправильним типом — 400
+PATCH {{baseUrl}}/films/{{filmId}}
+Content-Type: application/json
+
+{
+  "durationMinutes": "long"
+}
+
+### Отримати відсутній фільм — 404
+GET {{baseUrl}}/films/{{missingId}}
+
+### Оновити відсутній фільм — 404
+PATCH {{baseUrl}}/films/{{missingId}}
+Content-Type: application/json
+
+{
+  "title": "Missing"
+}
+
+### Створити фільм, який не використовується в сеансі
+# @name createUnusedFilm
+POST {{baseUrl}}/films
+Content-Type: application/json
+
+{
+  "title": "Temporary film",
+  "durationMinutes": 90,
+  "releaseYear": 2020
+}
+
+> {% client.global.set("unusedFilmId", response.body.id); %}
+
+### Видалити фільм без сеансів — 204
+DELETE {{baseUrl}}/films/{{unusedFilmId}}
+
+### Створити зал
+# @name createHall
+POST {{baseUrl}}/halls
+Content-Type: application/json
+
+{
+  "name": "Зал 1",
+  "rows": 2,
+  "seatsPerRow": 3
+}
+
+> {% client.global.set("hallId", response.body.id); %}
+
+### Список залів
+GET {{baseUrl}}/halls
+
+### Зал із місцями
+GET {{baseUrl}}/halls/{{hallId}}
+
+### Створити зал із повторною назвою — 409
+POST {{baseUrl}}/halls
+Content-Type: application/json
+
+{
+  "name": "Зал 1",
+  "rows": 4,
+  "seatsPerRow": 5
+}
+
+### Створити зал із некоректними розмірами — 400
+POST {{baseUrl}}/halls
+Content-Type: application/json
+
+{
+  "name": "Некоректний зал",
+  "rows": 0,
+  "seatsPerRow": 2.5
+}
+
+### Отримати відсутній зал — 404
+GET {{baseUrl}}/halls/{{missingId}}
+
+### ID залу не є UUID — 400
+GET {{baseUrl}}/halls/not-a-uuid
+
+### Створити зал без сеансів для видалення
+# @name createUnusedHall
+POST {{baseUrl}}/halls
+Content-Type: application/json
+
+{
+  "name": "Тимчасовий зал",
+  "rows": 1,
+  "seatsPerRow": 1
+}
+
+> {% client.global.set("unusedHallId", response.body.id); %}
+
+### Видалити зал без сеансів — 204
+DELETE {{baseUrl}}/halls/{{unusedHallId}}
+
+### Створити сеанс
+# @name createShowing
+POST {{baseUrl}}/showings
+Content-Type: application/json
+
+{
+  "filmId": "{{filmId}}",
+  "hallId": "{{hallId}}",
+  "startsAt": "2035-01-01T18:00:00.000Z",
+  "price": 15000
+}
+
+> {% client.global.set("showingId", response.body.id); %}
+
+### Усі сеанси
+GET {{baseUrl}}/showings
+
+### Сеанси за фільмом і датою
+GET {{baseUrl}}/showings?filmId={{filmId}}&date=2035-01-01
+
+### Сеанс за ID
+GET {{baseUrl}}/showings/{{showingId}}
+
+### Місця до бронювання
+GET {{baseUrl}}/showings/{{showingId}}/seats
+
+### Некоректна дата у фільтрі — 400
+GET {{baseUrl}}/showings?date=2035-02-30
+
+### Некоректний UUID у фільтрі — 400
+GET {{baseUrl}}/showings?filmId=not-a-uuid
+
+### Сеанс із відсутнім фільмом — 400
+POST {{baseUrl}}/showings
+Content-Type: application/json
+
+{
+  "filmId": "{{missingId}}",
+  "hallId": "{{hallId}}",
+  "startsAt": "2035-01-02T18:00:00.000Z",
+  "price": 15000
+}
+
+### Сеанс із відсутнім залом — 400
+POST {{baseUrl}}/showings
+Content-Type: application/json
+
+{
+  "filmId": "{{filmId}}",
+  "hallId": "{{missingId}}",
+  "startsAt": "2035-01-02T18:00:00.000Z",
+  "price": 15000
+}
+
+### ID сеансу не є UUID — 400
+GET {{baseUrl}}/showings/not-a-uuid
+
+### Сеанс із некоректною датою — 400
+POST {{baseUrl}}/showings
+Content-Type: application/json
+
+{
+  "filmId": "{{filmId}}",
+  "hallId": "{{hallId}}",
+  "startsAt": "2020-01-01T18:00:00.000Z",
+  "price": 15000
+}
+
+### Сеанс із нульовою ціною — 400
+POST {{baseUrl}}/showings
+Content-Type: application/json
+
+{
+  "filmId": "{{filmId}}",
+  "hallId": "{{hallId}}",
+  "startsAt": "2035-01-02T18:00:00.000Z",
+  "price": 0
+}
+
+### Отримати відсутній сеанс — 404
+GET {{baseUrl}}/showings/{{missingId}}
+
+### Місця для відсутнього сеансу — 404
+GET {{baseUrl}}/showings/{{missingId}}/seats
+
+### Створити бронювання
+# @name createBooking
+POST {{baseUrl}}/showings/{{showingId}}/bookings
+Content-Type: application/json
+
+{
+  "seats": [
+    { "row": 1, "seat": 1 },
+    { "row": 1, "seat": 2 }
+  ]
+}
+
+> {% client.global.set("bookingId", response.body.id); %}
+
+### Бронювання сеансу
+GET {{baseUrl}}/showings/{{showingId}}/bookings
+
+### Місця після бронювання
+GET {{baseUrl}}/showings/{{showingId}}/seats
+
+### Порожній список місць — 400
+POST {{baseUrl}}/showings/{{showingId}}/bookings
+Content-Type: application/json
+
+{
+  "seats": []
+}
+
+### Повтор місця в одному запиті — 400
+POST {{baseUrl}}/showings/{{showingId}}/bookings
+Content-Type: application/json
+
+{
+  "seats": [
+    { "row": 2, "seat": 1 },
+    { "row": 2, "seat": 1 }
+  ]
+}
+
+### Місце поза межами залу — 400
+POST {{baseUrl}}/showings/{{showingId}}/bookings
+Content-Type: application/json
+
+{
+  "seats": [{ "row": 3, "seat": 1 }]
+}
+
+### Відсутні координати місця — 400
+POST {{baseUrl}}/showings/{{showingId}}/bookings
+Content-Type: application/json
+
+{
+  "seats": [{ "row": 1 }]
+}
+
+### Некоректні координати місця — 400
+POST {{baseUrl}}/showings/{{showingId}}/bookings
+Content-Type: application/json
+
+{
+  "seats": [{ "row": 0, "seat": 1.5 }]
+}
+
+### Спроба забронювати зайняте місце — 409
+POST {{baseUrl}}/showings/{{showingId}}/bookings
+Content-Type: application/json
+
+{
+  "seats": [{ "row": 1, "seat": 1 }]
+}
+
+### Відсутній сеанс під час бронювання — 404
+POST {{baseUrl}}/showings/{{missingId}}/bookings
+Content-Type: application/json
+
+{
+  "seats": [{ "row": 1, "seat": 1 }]
+}
+
+### Бронювання відсутнього сеансу — 404
+GET {{baseUrl}}/showings/{{missingId}}/bookings
+
+### ID сеансу у маршруті бронювань не є UUID — 400
+GET {{baseUrl}}/showings/not-a-uuid/bookings
+
+### Скасувати бронювання — звільняє місця, 204
+DELETE {{baseUrl}}/bookings/{{bookingId}}
+
+### Видалити відсутнє бронювання — 404
+DELETE {{baseUrl}}/bookings/{{missingId}}
+
+### ID бронювання не є UUID — 400
+DELETE {{baseUrl}}/bookings/not-a-uuid
+
+### Видалити фільм, на який є сеанс — 409
+DELETE {{baseUrl}}/films/{{filmId}}
+
+### Видалити зал, на який є сеанс — 409
+DELETE {{baseUrl}}/halls/{{hallId}}
+
+### Видалити відсутній фільм — 404
+DELETE {{baseUrl}}/films/{{missingId}}
+
+### Видалити відсутній зал — 404
+DELETE {{baseUrl}}/halls/{{missingId}}
