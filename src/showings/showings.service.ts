@@ -108,6 +108,12 @@ export class ShowingsService {
   private toResponse(showing: Showing): ShowingResponse {
     const film = this.filmsService.findById(showing.filmId);
     const hall = this.hallsService.findById(showing.hallId);
-    return { ...showing, filmName: film.title, hallName: hall.name };
+    return {
+      id: showing.id,
+      startsAt: showing.startsAt,
+      price: showing.price,
+      filmName: film.title,
+      hallName: hall.name,
+    };
   }
 }

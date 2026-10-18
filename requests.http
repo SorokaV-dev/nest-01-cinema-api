@@ -121,6 +121,25 @@ Content-Type: application/json
   "seatsPerRow": 2.5
 }
 
+### Створити зал без обов'язкового поля — 400
+POST {{baseUrl}}/halls
+Content-Type: application/json
+
+{
+  "name": "Неповний зал",
+  "rows": 4
+}
+
+### Створити зал із неправильним типом поля — 400
+POST {{baseUrl}}/halls
+Content-Type: application/json
+
+{
+  "name": "Зал з рядками як текстом",
+  "rows": "4",
+  "seatsPerRow": 5
+}
+
 ### Отримати відсутній зал — 404
 GET {{baseUrl}}/halls/{{missingId}}
 
@@ -172,6 +191,9 @@ GET {{baseUrl}}/showings/{{showingId}}/seats
 ### Некоректна дата у фільтрі — 400
 GET {{baseUrl}}/showings?date=2035-02-30
 
+### Неправильний формат дати у фільтрі — 400
+GET {{baseUrl}}/showings?date=2035/02/30
+
 ### Некоректний UUID у фільтрі — 400
 GET {{baseUrl}}/showings?filmId=not-a-uuid
 
@@ -222,6 +244,49 @@ Content-Type: application/json
   "price": 0
 }
 
+### Сеанс із ціною неправильного типу — 400
+POST {{baseUrl}}/showings
+Content-Type: application/json
+
+{
+  "filmId": "{{filmId}}",
+  "hallId": "{{hallId}}",
+  "startsAt": "2035-01-02T18:00:00.000Z",
+  "price": "15000"
+}
+
+### Сеанс із дробовою ціною — 400
+POST {{baseUrl}}/showings
+Content-Type: application/json
+
+{
+  "filmId": "{{filmId}}",
+  "hallId": "{{hallId}}",
+  "startsAt": "2035-01-02T18:00:00.000Z",
+  "price": 15000.5
+}
+
+### Сеанс без обов'язкового поля — 400
+POST {{baseUrl}}/showings
+Content-Type: application/json
+
+{
+  "filmId": "{{filmId}}",
+  "hallId": "{{hallId}}",
+  "startsAt": "2035-01-02T18:00:00.000Z"
+}
+
+### Сеанс із датою не у форматі ISO 8601 — 400
+POST {{baseUrl}}/showings
+Content-Type: application/json
+
+{
+  "filmId": "{{filmId}}",
+  "hallId": "{{hallId}}",
+  "startsAt": "not-a-date",
+  "price": 15000
+}
+
 ### Отримати відсутній сеанс — 404
 GET {{baseUrl}}/showings/{{missingId}}
 
@@ -259,6 +324,14 @@ Content-Type: application/json
   "seats": []
 }
 
+### Список місць має бути масивом — 400
+POST {{baseUrl}}/showings/{{showingId}}/bookings
+Content-Type: application/json
+
+{
+  "seats": "1:1"
+}
+
 ### Повтор місця в одному запиті — 400
 POST {{baseUrl}}/showings/{{showingId}}/bookings
 Content-Type: application/json
@@ -292,6 +365,14 @@ Content-Type: application/json
 
 {
   "seats": [{ "row": 0, "seat": 1.5 }]
+}
+
+### Координати місця неправильного типу — 400
+POST {{baseUrl}}/showings/{{showingId}}/bookings
+Content-Type: application/json
+
+{
+  "seats": [{ "row": "1", "seat": 2 }]
 }
 
 ### Спроба забронювати зайняте місце — 409

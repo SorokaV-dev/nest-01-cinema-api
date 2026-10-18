@@ -4,7 +4,8 @@ REST API for films, halls, showings, and seat bookings. Data is kept in private 
 
 ## Requirements
 
-- Node.js compatible with the installed NestJS toolchain.
+- Node.js `^22.22.3`, `^24.15.0`, or `>=26.0.0`, as required by the installed
+  Angular DevKit dependency.
 - npm.
 
 ## Setup
