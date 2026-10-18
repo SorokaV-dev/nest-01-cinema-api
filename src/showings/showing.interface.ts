@@ -6,7 +6,7 @@ export interface Showing {
   price: number;
 }
 
-export interface ShowingResponse extends Showing {
+export interface ShowingResponse extends Omit<Showing, 'filmId' | 'hallId'> {
   filmName: string;
   hallName: string;
 }

@@ -20,6 +20,10 @@ export class BookingsService {
     private readonly hallsService: HallsService,
   ) {}
 
+  findAll(): Booking[] {
+    return this.bookings.map((booking) => this.copyBooking(booking));
+  }
+
   create(showingId: string, dto: CreateBookingDto): Booking {
     const showing = this.showingsService.findRawById(showingId);
     const hall = this.hallsService.findById(showing.hallId);

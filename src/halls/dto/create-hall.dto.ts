@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import { IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
 
 export class CreateHallDto {
@@ -10,13 +10,11 @@ export class CreateHallDto {
   name!: string;
 
   @ApiProperty({ example: 10, minimum: 1 })
-  @Type(() => Number)
   @IsInt()
   @Min(1)
   rows!: number;
 
   @ApiProperty({ example: 12, minimum: 1 })
-  @Type(() => Number)
   @IsInt()
   @Min(1)
   seatsPerRow!: number;

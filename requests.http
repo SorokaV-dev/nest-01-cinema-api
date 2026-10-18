@@ -242,6 +242,9 @@ Content-Type: application/json
 
 > {% client.global.set("bookingId", response.body.id); %}
 
+### Усі бронювання
+GET {{baseUrl}}/bookings
+
 ### Бронювання сеансу
 GET {{baseUrl}}/showings/{{showingId}}/bookings
 

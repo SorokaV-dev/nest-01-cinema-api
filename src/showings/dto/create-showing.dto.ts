@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import { IsDateString, IsInt, IsUUID, Min } from 'class-validator';
 
 export class CreateShowingDto {
@@ -16,7 +15,6 @@ export class CreateShowingDto {
   startsAt!: string;
 
   @ApiProperty({ example: 15000, description: 'Ціна в копійках', minimum: 1 })
-  @Type(() => Number)
   @IsInt()
   @Min(1)
   price!: number;

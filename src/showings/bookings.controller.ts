@@ -28,6 +28,13 @@ import { CreateBookingDto } from './dto/create-booking.dto.js';
 export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
+  @Get('bookings')
+  @ApiOperation({ summary: 'Отримати всі бронювання' })
+  @ApiOkResponse({ description: 'Список бронювань або порожній масив' })
+  findAll() {
+    return this.bookingsService.findAll();
+  }
+
   @Post('showings/:showingId/bookings')
   @ApiOperation({ summary: 'Забронювати місця на сеансі' })
   @ApiParam({ name: 'showingId', format: 'uuid' })
